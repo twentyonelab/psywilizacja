@@ -125,8 +125,10 @@ function HexPatch() {
         const terrain = terrainFor(c.q, c.r, dist);
         return (
           <group key={key(c)}>
-            <mesh position={[x, 0, z]} rotation={[0, Math.PI / 6, 0]} castShadow receiveShadow>
-              <cylinderGeometry args={[SIZE * 0.97, SIZE * 0.97, HEIGHT, 6]} />
+            <mesh position={[x, 0, z]} castShadow receiveShadow>
+              {/* walec 6-ścienny: domyślnie wierzchołek na osi Z (pointy-top) — pasuje do rozstawienia,
+                  promień = SIZE → flat-to-flat = √3·SIZE = odległość sąsiadów → idealne stykanie */}
+              <cylinderGeometry args={[SIZE * 0.995, SIZE * 0.995, HEIGHT, 6]} />
               <meshStandardMaterial color={COLOR[terrain]} />
             </mesh>
             <Decor terrain={terrain} x={x} z={z} />
