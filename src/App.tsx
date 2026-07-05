@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import Board from "./components/Board";
-import { useGame, apMax } from "./state/store";
+import { useGame, apMax, DOMINATION_TARGET } from "./state/store";
 import { STATS, TERRAIN_LABEL, TOYS, SENSE_TREE, WATAHY, WOLF_INFO } from "./game/content";
 import { key, neighbors } from "./game/hex";
 import Emblem from "./components/Emblems";
@@ -129,7 +129,13 @@ export default function App() {
           {isAI
             ? <div className="hint ai-think">🤖 {cur.name} planuje ruchy…</div>
             : <div className="hint">Sąsiednie pole: <b>zielone</b>=ruch, <b>👃</b>=węsz, <b style={{ color: "#e8654e" }}>czerwone</b>=atak na wilka.</div>}
-          <div className="goal">🏆 Cel: odblokuj <b>legendarny (IV) zmysł</b> — jedną z 5 ścieżek zwycięstwa.</div>
+          <div className="goal">
+            🏆 Cel: <b>dominacja</b> — zajmij (wywęsz) <b>{DOMINATION_TARGET} heksów</b>.
+            <div className="goal-bar">
+              <div className="goal-bar-fill" style={{ width: `${Math.min(100, (player.claimed / DOMINATION_TARGET) * 100)}%`, background: cur.colorHex }} />
+            </div>
+            <span className="goal-count">Twój teren: {player.claimed}/{DOMINATION_TARGET}</span>
+          </div>
         </div>
 
         {/* AKCJE ROZWOJU */}

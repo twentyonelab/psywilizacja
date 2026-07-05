@@ -5,6 +5,7 @@ import { START_BRANCH, TOYS, TROPY_COST, WATAHA_ORDER, WATAHY, WOLF_INFO } from 
 import { BranchId, StatId, TerrainType, WatahaId, Wolf } from "../game/types";
 
 export const BASE_AP = 3;
+export const DOMINATION_TARGET = 10; // liczba zajętych (wywęszonych) heksów do zwycięstwa
 const DIE = [0, 0, 1, 1, 2, 2];
 const rollDie = () => DIE[Math.floor(Math.random() * DIE.length)];
 const REVEAL_TERRAINS: TerrainType[] = ["pola", "bor", "ruiny", "gory"];
@@ -19,6 +20,7 @@ export interface PlayerState {
   resources: Resources;
   stats: Record<StatId, number>;
   senses: Record<BranchId, number>;
+  claimed: number; // zajęte (wywęszone) heksy — miara dominacji
 }
 export interface Roll {
   id: number;
@@ -72,6 +74,7 @@ function freshPlayers(): Record<WatahaId, PlayerState> {
       resources: { jedzenie: 2, schronienie: 1, narzedzia: 0, tropy: 0 },
       stats: { sila: 1, zrecznosc: 1, spryt: 1, wech: 1, szybkosc: 1 },
       senses,
+      claimed: 0,
     };
   }
   return p;
@@ -134,14 +137,27 @@ export const useGame = create<Store>((set, get) => ({
     const foodGain = value >= 1 ? 1 : 0;
     const tiles = { ...s.map.tiles, [k]: { ...tile, revealed: true, terrain } };
     const players = { ...s.players };
-    const res = players[curId].resources;
-    players[curId] = { ...players[curId], resources: { ...res, tropy: res.tropy + tropyGain, jedzenie: res.jedzenie + foodGain } };
+    const cur = players[curId];
+    const claimed = cur.claimed + 1; // wywęszony heks = zajęty teren
+    players[curId] = {
+      ...cur,
+      claimed,
+      resources: { ...cur.resources, tropy: cur.resources.tropy + tropyGain, jedzenie: cur.resources.jedzenie + foodGain },
+    };
+    const won = claimed >= DOMINATION_TARGET;
     set({
       map: { ...s.map, tiles },
       players,
       ap: s.ap - 1,
+      winner: won ? curId : null,
+      winPath: won ? `${claimed} zajętych heksów` : null,
       lastRoll: { id: rollSeq++, value, reason: "węsz", tone: "info", text: `${labelTerrain(terrain)} · +${tropyGain} Tropów` },
-      log: trim([`${WATAHY[curId].name}: węszy → ${labelTerrain(terrain)}. Kostka ${value} → +${tropyGain} Tropów${foodGain ? ", +1 jedzenie" : ""}.`, ...s.log]),
+      log: trim([
+        won
+          ? `🏆 ${WATAHY[curId].name} zajmuje ${claimed} heksów — DOMINACJA! Zwycięstwo!`
+          : `${WATAHY[curId].name}: węszy → ${labelTerrain(terrain)}. Kostka ${value} → +${tropyGain} Tropów${foodGain ? ", +1 jedzenie" : ""}. (teren ${claimed}/${DOMINATION_TARGET})`,
+        ...s.log,
+      ]),
     });
   },
 
@@ -232,18 +248,10 @@ export const useGame = create<Store>((set, get) => ({
     const senses = { ...p.senses, [branch]: target };
     players[curId] = { ...p, senses, resources: { ...p.resources, tropy: p.resources.tropy - cost } };
     const bonusNow = branch === "wzrok" && target === 1 ? 1 : 0;
-    const won = target === 4;
     set({
       players,
       ap: s.ap - 1 + bonusNow,
-      winner: won ? curId : null,
-      winPath: won ? PATH_NAME[branch] : null,
-      log: trim([
-        won
-          ? `🏆 ${WATAHY[curId].name} osiąga legendarny zmysł (${branchLabel(branch)} IV) — zwycięstwo ścieżką „${PATH_NAME[branch]}"!`
-          : `${WATAHY[curId].name}: odblokowano zmysł (${branchLabel(branch)} ${roman(target)}) za ${cost} Tropów.`,
-        ...s.log,
-      ]),
+      log: trim([`${WATAHY[curId].name}: odblokowano zmysł (${branchLabel(branch)} ${roman(target)}) za ${cost} Tropów.`, ...s.log]),
     });
   },
 

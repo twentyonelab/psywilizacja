@@ -27,9 +27,9 @@ export default function VictoryModal({ watahaId, path, onReset }: Props) {
         </div>
         <div className="victory-name" style={{ color: w.colorHex }}>{w.name}</div>
         <div className="victory-path">
-          osiąga legendarny zmysł i wygrywa ścieżką
+          zdobywa <b>dominację</b> nad krainą
           <br />
-          <b>„{path}"</b>
+          <b>{path}</b>
         </div>
         <button className="btn primary victory-btn" onClick={onReset}>Nowa gra ▸</button>
       </motion.div>
