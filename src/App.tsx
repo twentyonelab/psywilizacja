@@ -41,16 +41,20 @@ export default function App() {
   }, [unit.q, unit.r, map.tiles, map.wolves]);
 
   // Sterownik AI: krok po kroku, aż wyczerpie akcje, potem koniec tury.
+  // Bezpiecznik: jeśli krok nie zużyje akcji (utknięcie), i tak kończymy turę.
   useEffect(() => {
     if (!isAI || winner) return;
     const id = setTimeout(() => {
       const st = useGame.getState();
-      if (st.controller[st.order[st.current]] !== "ai") return;
-      if (st.ap > 0) st.aiStep();
-      else st.endTurn();
-    }, 600);
+      const id2 = st.order[st.current];
+      if (st.controller[id2] !== "ai" || st.winner) return;
+      if (st.ap <= 0) { st.endTurn(); return; }
+      const before = st.ap;
+      try { st.aiStep(); } catch (e) { console.error("AI błąd:", e); }
+      if (useGame.getState().ap >= before) st.endTurn(); // brak postępu → nie blokuj gry
+    }, 550);
     return () => clearTimeout(id);
-  }, [isAI, curId, ap]);
+  }, [isAI, curId, ap, winner]);
 
   const sel = selected ? map.tiles[selected] : null;
   const dangerLabel = ["bezpiecznie", "niski", "średni", "wysoki"];

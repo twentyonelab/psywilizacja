@@ -260,8 +260,10 @@ export const useGame = create<Store>((set, get) => ({
     const wolf = s.map.wolves.find((w) => nb.includes(key(w)) && WOLF_INFO[w.type].hostile);
     if (wolf && p.stats.sila >= WOLF_INFO[wolf.type].power - 1) return get().attackWolf(wolf.id);
 
-    // 2) sąsiednie nieodkryte → węsz
-    const sniff = nb.find((k) => s.map.tiles[k] && !s.map.tiles[k].revealed);
+    // 2) sąsiednie nieodkryte (bez wilka na polu) → węsz
+    const sniff = nb.find(
+      (k) => s.map.tiles[k] && !s.map.tiles[k].revealed && !s.map.wolves.some((w) => key(w) === k)
+    );
     if (sniff) return get().clickHex(sniff);
 
     // 3) czasem odblokuj własny zmysł jeśli stać
