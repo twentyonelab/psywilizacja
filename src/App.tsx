@@ -70,19 +70,15 @@ export default function App() {
         <button className="btn view-toggle" onClick={() => setThreeD((v) => !v)}>
           {threeD ? "🗺️ Widok 2D" : "🧊 Podgląd 3D"}
         </button>
-        <div className="pill">prototyp 0.5 · test 3D</div>
+        <div className="pill">prototyp 0.6 · 2D/3D grywalne</div>
       </header>
 
       <div className="board-wrap">
+        <FeedbackToast lastRoll={lastRoll} />
         {threeD ? (
           <div className="board3d">
-            <div className="board3d-note">🧊 Podgląd 3D (test technologii) — przeciągnij, by obrócić · kółko = zoom</div>
-            <Board3D />
-          </div>
-        ) : (
-          <>
-            <FeedbackToast lastRoll={lastRoll} />
-            <Board
+            <div className="board3d-note">🧊 3D — przeciągnij, by obrócić · kółko = zoom · klikaj heksy jak w 2D</div>
+            <Board3D
               map={map}
               selected={selected}
               currentId={curId}
@@ -91,7 +87,17 @@ export default function App() {
               attackable={attackable}
               onHexClick={isAI || winner ? () => {} : clickHex}
             />
-          </>
+          </div>
+        ) : (
+          <Board
+            map={map}
+            selected={selected}
+            currentId={curId}
+            moveable={moveable}
+            sniffable={sniffable}
+            attackable={attackable}
+            onHexClick={isAI || winner ? () => {} : clickHex}
+          />
         )}
       </div>
 
