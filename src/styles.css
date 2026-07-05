@@ -206,6 +206,14 @@ body {
 .wolf-lb { flex: 1; color: var(--ink-soft); }
 .wolf-pw { color: var(--soft); font-size: 11px; }
 
+/* przełącznik widoku + podgląd 3D */
+.view-toggle { margin-right: 10px; }
+.board3d { position: relative; width: 100%; height: 82vh; border-radius: 12px; overflow: hidden; }
+.board3d canvas { display: block; width: 100% !important; height: 100% !important; }
+.board3d-note { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 5;
+  background: rgba(255,255,255,.82); color: var(--ink); font-size: 11.5px; padding: 5px 12px;
+  border-radius: 999px; pointer-events: none; white-space: nowrap; }
+
 /* cel gry */
 .goal { margin-top: 8px; font-size: 11px; color: var(--ink-soft); background: #f4ead9;
   border: 1px solid #e0c79c; border-radius: 7px; padding: 6px 8px; line-height: 1.4; }

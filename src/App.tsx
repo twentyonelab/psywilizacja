@@ -9,6 +9,7 @@ import DiceRoller from "./components/DiceRoller";
 import SensesTree from "./components/SensesTree";
 import VictoryModal from "./components/VictoryModal";
 import FeedbackToast from "./components/FeedbackToast";
+import Board3D from "./components/Board3D";
 import { IconFood, IconShelter, IconTools, IconTropy } from "./components/ResourceIcons";
 
 export default function App() {
@@ -22,6 +23,7 @@ export default function App() {
 
   const [showTree, setShowTree] = useState(false);
   const [showToys, setShowToys] = useState(false);
+  const [threeD, setThreeD] = useState(false);
 
   const unit = map.units.find((u) => u.watahaId === curId)!;
   const { moveable, sniffable, attackable } = useMemo(() => {
@@ -65,20 +67,32 @@ export default function App() {
         <div className="logo"><span className="paw">🐾</span>Psywilizacja</div>
         <div className="tag">Po Ciszy: Watahy Nowego Świata</div>
         <div className="spacer" />
-        <div className="pill">prototyp 0.4 · etap 5: wilki i AI</div>
+        <button className="btn view-toggle" onClick={() => setThreeD((v) => !v)}>
+          {threeD ? "🗺️ Widok 2D" : "🧊 Podgląd 3D"}
+        </button>
+        <div className="pill">prototyp 0.5 · test 3D</div>
       </header>
 
       <div className="board-wrap">
-        <FeedbackToast lastRoll={lastRoll} />
-        <Board
-          map={map}
-          selected={selected}
-          currentId={curId}
-          moveable={moveable}
-          sniffable={sniffable}
-          attackable={attackable}
-          onHexClick={isAI || winner ? () => {} : clickHex}
-        />
+        {threeD ? (
+          <div className="board3d">
+            <div className="board3d-note">🧊 Podgląd 3D (test technologii) — przeciągnij, by obrócić · kółko = zoom</div>
+            <Board3D />
+          </div>
+        ) : (
+          <>
+            <FeedbackToast lastRoll={lastRoll} />
+            <Board
+              map={map}
+              selected={selected}
+              currentId={curId}
+              moveable={moveable}
+              sniffable={sniffable}
+              attackable={attackable}
+              onHexClick={isAI || winner ? () => {} : clickHex}
+            />
+          </>
+        )}
       </div>
 
       <aside className="sidepanel">
